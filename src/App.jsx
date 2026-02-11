@@ -1,117 +1,180 @@
-import { useState } from "react";
-import { puzzles } from "./puzzles";
 
-function App() {
-  // Mock login
-  const [user, setUser] = useState(null);
 
-  // Current puzzle index
-  const [currentIndex, setCurrentIndex] = useState(new Date().getDate() % puzzles.length);
+import React, { useState, useEffect } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 
-  const todayKey = "daily-" + currentIndex;
-  const question = puzzles[currentIndex];
+// --- Puzzle Component ---
+function Puzzle({ title, question, solution, hint, onSolve }) {
+  const [input, setInput] = useState("");
+  const [solved, setSolved] = useState(false);
+  const [showHint, setShowHint] = useState(false);
 
-  const [selected, setSelected] = useState(localStorage.getItem(todayKey) || null);
-  const [result, setResult] = useState(localStorage.getItem(todayKey + "-result") || "");
+  const checkSolution = () => {
+    if (solved) return;
+    if (input.trim().toLowerCase() === solution.toLowerCase()) {
+      // Play success sound
+      new Audio("/correct.mp3").play();
 
-  function checkAnswer(option) {
-    if (selected !== null) return;
-    setSelected(option);
-    const res = option === question.correct ? "✅ Correct!" : "❌ Wrong answer";
-    setResult(res);
-
-    localStorage.setItem(todayKey, option);
-    localStorage.setItem(todayKey + "-result", res);
-  }
+      onSolve(100);
+      setSolved(true);
+      setInput("");
+    } else {
+      alert("Try again!");
+    }
+  };
 
   return (
-    <div className="min-h-screen bg-gray-100 flex flex-col items-center justify-center p-4">
-      {/* Login */}
-      <div className="mb-6">
-        {!user ? (
-          <button
-            onClick={() => setUser({ name: "Demo User" })}
-            className="bg-blue-500 text-white py-2 px-4 rounded-lg font-semibold"
-          >
-            Login
-          </button>
-        ) : (
-          <div className="flex items-center gap-2">
-            <span className="font-semibold">Hello, {user.name}</span>
-            <button
-              onClick={() => setUser(null)}
-              className="bg-red-500 text-white py-1 px-3 rounded-lg font-semibold"
-            >
-              Logout
-            </button>
-          </div>
+    <AnimatePresence>
+      <motion.div
+        key={title}
+        className={`p-4 border rounded mb-2 ${solved ? "bg-green-100" : "bg-white"}`}
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        exit={{ opacity: 0, x: 100 }}
+        transition={{ duration: 0.3 }}
+      >
+        <h2 className="font-bold">{title}</h2>
+        <p className="mb-2">{question}</p>
+
+        <input
+          type="text"
+          value={input}
+          onChange={(e) => setInput(e.target.value)}
+          className="border p-1 mr-2"
+          disabled={solved}
+        />
+
+        <motion.button
+          whileHover={{ scale: 1.1 }}
+          whileTap={{ scale: 0.9 }}
+          onClick={checkSolution}
+          className="px-2 py-1 bg-blue-500 text-white rounded disabled:bg-gray-400"
+          disabled={solved}
+        >
+          Submit
+        </motion.button>
+
+        {/* Hint Button */}
+        <button
+          onClick={() => setShowHint(!showHint)}
+          className="ml-2 px-2 py-1 bg-yellow-400 text-black rounded"
+        >
+          Hint
+        </button>
+
+        {showHint && (
+          <p className="mt-1 text-sm text-gray-700 italic">{hint}</p>
         )}
-      </div>
+      </motion.div>
+    </AnimatePresence>
+  );
+}
 
-      {/* Puzzle */}
-      {user ? (
-        <div className="w-full max-w-md bg-white rounded-xl shadow-lg p-6">
-          <h1 className="text-2xl font-bold text-center mb-4">🧩 Daily Puzzle</h1>
-          <p className="text-center mb-6 text-lg">{question.text}</p>
+// --- Main App ---
+function App() {
+  const [points, setPoints] = useState(
+    () => JSON.parse(localStorage.getItem("points")) || 0
+  );
+  const [streak, setStreak] = useState(
+    () => JSON.parse(localStorage.getItem("streak")) || 0
+  );
+  const [lastReset, setLastReset] = useState(
+    () => JSON.parse(localStorage.getItem("lastReset")) || new Date().toDateString()
+  );
 
-          <div className="grid grid-cols-2 gap-3">
-            {question.options.map((opt) => {
-              let style = "bg-blue-100 hover:bg-blue-200";
-              if (selected !== null) {
-                if (opt === question.correct) style = "bg-green-200";
-                else if (opt === selected) style = "bg-red-200";
-              }
-              return (
-                <button
-                  key={opt}
-                  onClick={() => checkAnswer(opt)}
-                  disabled={selected !== null}
-                  className={`${style} py-2 rounded-lg font-semibold`}
-                >
-                  {opt}
-                </button>
-              );
-            })}
-          </div>
+  // Daily reset logic
+  useEffect(() => {
+    const today = new Date().toDateString();
+    if (lastReset !== today) {
+      setLastReset(today);
+      localStorage.setItem("lastReset", JSON.stringify(today));
+      setPoints(0);
+      localStorage.setItem("points", JSON.stringify(0));
+      setStreak(0);
+      localStorage.setItem("streak", JSON.stringify(0));
+      alert("Daily puzzles reset! 🔄");
+    }
+  }, [lastReset]);
 
-          {result && <p className="text-center mt-4 font-semibold text-xl">{result}</p>}
+  // Persist points & streak
+  useEffect(() => {
+    localStorage.setItem("points", JSON.stringify(points));
+    localStorage.setItem("streak", JSON.stringify(streak));
+  }, [points, streak]);
 
-          {/* Navigation */}
-          <div className="flex justify-between mt-6">
-            <button
-              onClick={() => {
-                const prev = (currentIndex - 1 + puzzles.length) % puzzles.length;
-                setCurrentIndex(prev);
-                setSelected(localStorage.getItem("daily-" + prev) || null);
-                setResult(localStorage.getItem("daily-" + prev + "-result") || "");
-              }}
-              className="bg-gray-200 py-1 px-3 rounded-lg font-semibold"
-            >
-              ◀ Previous
-            </button>
-            <span className="font-semibold">
-              Puzzle {currentIndex + 1} of {puzzles.length}
-            </span>
-            <button
-              onClick={() => {
-                const next = (currentIndex + 1) % puzzles.length;
-                setCurrentIndex(next);
-                setSelected(localStorage.getItem("daily-" + next) || null);
-                setResult(localStorage.getItem("daily-" + next + "-result") || "");
-              }}
-              className="bg-gray-200 py-1 px-3 rounded-lg font-semibold"
-            >
-              Next ▶
-            </button>
-          </div>
-        </div>
-      ) : (
-        <p className="text-center text-gray-600 mt-6">Please login to attempt today’s puzzle.</p>
-      )}
+  const handleSolve = (score) => {
+    setPoints((prev) => prev + score);
+    setStreak((prev) => prev + 1);
+  };
+
+  // Puzzles with hints
+  const puzzles = [
+    {
+      title: "Puzzle 1",
+      question: "What comes next in the sequence: 2, 4, 6, ?",
+      solution: "8",
+      hint: "Look at the pattern of even numbers increasing by 2.",
+    },
+    {
+      title: "Puzzle 2",
+      question: "Unscramble the word: 'LPAEP'",
+      solution: "apple",
+      hint: "It's a fruit that keeps the doctor away.",
+    },
+    {
+      title: "Puzzle 3",
+      question: "If A=1, B=2, C=3… what is D+E?",
+      solution: "9",
+      hint: "D=4, E=5, add them together.",
+    },
+    {
+      title: "Puzzle 4",
+      question: "What is 5 × 3?",
+      solution: "15",
+      hint: "Multiply 5 by 3.",
+    },
+    {
+      title: "Puzzle 5",
+      question: "I speak without a mouth and hear without ears. What am I?",
+      solution: "echo",
+      hint: "You hear me in caves or empty rooms.",
+    },
+  ];
+
+  return (
+    <div className="p-4 max-w-md mx-auto">
+      <h1 className="text-3xl font-bold mb-4">Logic Looper</h1>
+      <h2 className="text-xl mb-4">
+        🔥 Streak: {streak} days | Total Points: {points}
+      </h2>
+
+      {/* Render puzzles */}
+      {puzzles.map((puzzle, idx) => (
+        <Puzzle
+          key={idx}
+          title={puzzle.title}
+          question={puzzle.question}
+          solution={puzzle.solution}
+          hint={puzzle.hint}
+          onSolve={handleSolve}
+        />
+      ))}
+
+      {/* Complete Puzzle Button */}
+      <motion.button
+        whileHover={{ scale: 1.05 }}
+        whileTap={{ scale: 0.95 }}
+        onClick={() => handleSolve(100)}
+        className="mt-4 px-4 py-2 bg-green-500 text-white font-bold rounded"
+      >
+        Complete Puzzle (+100)
+      </motion.button>
+
+      <p className="mt-4 text-sm text-gray-600">
+        Install as PWA on mobile/desktop for offline use.
+      </p>
     </div>
   );
 }
 
 export default App;
-
-

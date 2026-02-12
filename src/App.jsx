@@ -1,7 +1,8 @@
-
-
 import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { signInWithPopup, signOut, onAuthStateChanged } from "firebase/auth";
+import { auth, provider } from "./firebase";
+import axios from "axios";
 
 // --- Puzzle Component ---
 function Puzzle({ title, question, solution, hint, onSolve }) {
@@ -12,9 +13,7 @@ function Puzzle({ title, question, solution, hint, onSolve }) {
   const checkSolution = () => {
     if (solved) return;
     if (input.trim().toLowerCase() === solution.toLowerCase()) {
-      // Play success sound
       new Audio("/correct.mp3").play();
-
       onSolve(100);
       setSolved(true);
       setInput("");
@@ -27,20 +26,20 @@ function Puzzle({ title, question, solution, hint, onSolve }) {
     <AnimatePresence>
       <motion.div
         key={title}
-        className={`p-4 border rounded mb-2 ${solved ? "bg-green-100" : "bg-white"}`}
+        className={`p-4 border rounded mb-4 ${solved ? "bg-green-100" : "bg-white"} shadow-md`}
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
         exit={{ opacity: 0, x: 100 }}
         transition={{ duration: 0.3 }}
       >
-        <h2 className="font-bold">{title}</h2>
+        <h2 className="font-bold text-lg">{title}</h2>
         <p className="mb-2">{question}</p>
 
         <input
           type="text"
           value={input}
           onChange={(e) => setInput(e.target.value)}
-          className="border p-1 mr-2"
+          className="border p-2 mr-2 rounded w-2/3"
           disabled={solved}
         />
 
@@ -48,13 +47,12 @@ function Puzzle({ title, question, solution, hint, onSolve }) {
           whileHover={{ scale: 1.1 }}
           whileTap={{ scale: 0.9 }}
           onClick={checkSolution}
-          className="px-2 py-1 bg-blue-500 text-white rounded disabled:bg-gray-400"
+          className="px-3 py-1 bg-blue-500 text-white rounded disabled:bg-gray-400"
           disabled={solved}
         >
           Submit
         </motion.button>
 
-        {/* Hint Button */}
         <button
           onClick={() => setShowHint(!showHint)}
           className="ml-2 px-2 py-1 bg-yellow-400 text-black rounded"
@@ -62,9 +60,7 @@ function Puzzle({ title, question, solution, hint, onSolve }) {
           Hint
         </button>
 
-        {showHint && (
-          <p className="mt-1 text-sm text-gray-700 italic">{hint}</p>
-        )}
+        {showHint && <p className="mt-2 text-sm text-gray-700 italic">{hint}</p>}
       </motion.div>
     </AnimatePresence>
   );
@@ -72,17 +68,50 @@ function Puzzle({ title, question, solution, hint, onSolve }) {
 
 // --- Main App ---
 function App() {
-  const [points, setPoints] = useState(
-    () => JSON.parse(localStorage.getItem("points")) || 0
-  );
-  const [streak, setStreak] = useState(
-    () => JSON.parse(localStorage.getItem("streak")) || 0
-  );
-  const [lastReset, setLastReset] = useState(
-    () => JSON.parse(localStorage.getItem("lastReset")) || new Date().toDateString()
-  );
+  const [user, setUser] = useState(null);
+  const [points, setPoints] = useState(() => JSON.parse(localStorage.getItem("points")) || 0);
+  const [streak, setStreak] = useState(() => JSON.parse(localStorage.getItem("streak")) || 0);
+  const [lastReset, setLastReset] = useState(() => JSON.parse(localStorage.getItem("lastReset")) || new Date().toDateString());
 
-  // Daily reset logic
+  // Firebase Auth Listener
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
+      setUser(currentUser);
+
+      // Send user info to backend
+      if (currentUser) {
+        try {
+          await axios.post("http://localhost:5000/api/users", {
+            uid: currentUser.uid,
+            name: currentUser.displayName,
+            email: currentUser.email,
+          });
+          console.log("User saved to backend ✅");
+        } catch (err) {
+          console.error("Failed to save user:", err);
+        }
+      }
+    });
+    return () => unsubscribe();
+  }, []);
+
+  const handleLogin = async () => {
+    try {
+      await signInWithPopup(auth, provider);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const handleLogout = async () => {
+    try {
+      await signOut(auth);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  // Daily reset
   useEffect(() => {
     const today = new Date().toDateString();
     if (lastReset !== today) {
@@ -107,60 +136,53 @@ function App() {
     setStreak((prev) => prev + 1);
   };
 
-  // Puzzles with hints
   const puzzles = [
-    {
-      title: "Puzzle 1",
-      question: "What comes next in the sequence: 2, 4, 6, ?",
-      solution: "8",
-      hint: "Look at the pattern of even numbers increasing by 2.",
-    },
-    {
-      title: "Puzzle 2",
-      question: "Unscramble the word: 'LPAEP'",
-      solution: "apple",
-      hint: "It's a fruit that keeps the doctor away.",
-    },
-    {
-      title: "Puzzle 3",
-      question: "If A=1, B=2, C=3… what is D+E?",
-      solution: "9",
-      hint: "D=4, E=5, add them together.",
-    },
-    {
-      title: "Puzzle 4",
-      question: "What is 5 × 3?",
-      solution: "15",
-      hint: "Multiply 5 by 3.",
-    },
-    {
-      title: "Puzzle 5",
-      question: "I speak without a mouth and hear without ears. What am I?",
-      solution: "echo",
-      hint: "You hear me in caves or empty rooms.",
-    },
+    { title: "Puzzle 1", question: "2, 4, 6, ?", solution: "8", hint: "Even numbers increase by 2" },
+    { title: "Puzzle 2", question: "Unscramble 'LPAEP'", solution: "apple", hint: "Fruit that keeps doctor away" },
+    { title: "Puzzle 3", question: "If A=1, B=2, C=3, what is D+E?", solution: "9", hint: "D=4, E=5, add them" },
+    { title: "Puzzle 4", question: "5 × 3?", solution: "15", hint: "Multiply 5 by 3" },
+    { title: "Puzzle 5", question: "I speak without a mouth and hear without ears. What am I?", solution: "echo", hint: "Heard in caves or empty rooms" },
   ];
 
+  // --- Login Screen ---
+  if (!user) {
+    return (
+      <div className="flex justify-center items-center h-screen bg-gradient-to-br from-blue-100 to-blue-300">
+        <div className="bg-white p-10 rounded-xl shadow-xl text-center">
+          <h1 className="text-2xl font-bold mb-6">Welcome to Logic Looper!</h1>
+          <p className="mb-6 text-gray-700">Solve daily puzzles and boost your streak 🔥</p>
+          <button
+            onClick={handleLogin}
+            className="flex items-center justify-center gap-3 px-6 py-3 bg-red-500 text-white text-lg font-semibold rounded shadow-lg hover:bg-red-600 transition"
+          >
+            <img src="/google-icon.png" alt="Google" className="w-6 h-6" />
+            Sign in with Google
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  // --- Puzzle Screen ---
   return (
     <div className="p-4 max-w-md mx-auto">
-      <h1 className="text-3xl font-bold mb-4">Logic Looper</h1>
-      <h2 className="text-xl mb-4">
-        🔥 Streak: {streak} days | Total Points: {points}
-      </h2>
+      <div className="flex justify-between items-center mb-4">
+        <span>Welcome, {user.displayName}</span>
+        <button
+          onClick={handleLogout}
+          className="px-3 py-1 bg-red-500 text-white rounded"
+        >
+          Logout
+        </button>
+      </div>
 
-      {/* Render puzzles */}
+      <h1 className="text-3xl font-bold mb-4">Logic Looper</h1>
+      <h2 className="text-xl mb-4">🔥 Streak: {streak} days | Total Points: {points}</h2>
+
       {puzzles.map((puzzle, idx) => (
-        <Puzzle
-          key={idx}
-          title={puzzle.title}
-          question={puzzle.question}
-          solution={puzzle.solution}
-          hint={puzzle.hint}
-          onSolve={handleSolve}
-        />
+        <Puzzle key={idx} {...puzzle} onSolve={handleSolve} />
       ))}
 
-      {/* Complete Puzzle Button */}
       <motion.button
         whileHover={{ scale: 1.05 }}
         whileTap={{ scale: 0.95 }}
@@ -178,3 +200,4 @@ function App() {
 }
 
 export default App;
+

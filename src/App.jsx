@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { signInWithPopup, signOut, onAuthStateChanged } from "firebase/auth";
-import { auth, provider } from "./firebase"; // make sure firebase is configured
+import { auth, provider } from "./firebase";
 import axios from "axios";
 
 // --- Puzzle Component ---
@@ -35,21 +35,21 @@ function Puzzle({ title, question, options, correct, onSolve, hintsLeft, setHint
     <AnimatePresence>
       <motion.div
         key={title}
-        className={`p-4 border rounded mb-4 ${solved ? "bg-green-100" : "bg-white"} shadow-md`}
+        className={`p-4 border rounded mb-4 ${solved ? "bg-[#F6F5F5]" : "bg-white"} shadow-md`}
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
         exit={{ opacity: 0, x: 100 }}
         transition={{ duration: 0.3 }}
       >
-        <h2 className="font-bold text-lg">{title}</h2>
-        <p className="mb-2">{question}</p>
+        <h2 className="font-bold text-lg text-[#190482]">{title}</h2>
+        <p className="mb-2 text-[#414BEA]">{question}</p>
 
         {options.map((opt, idx) => (
           <button
             key={idx}
             onClick={() => setSelected(opt)}
             className={`m-1 px-3 py-1 border rounded ${
-              selected === opt ? "bg-blue-500 text-white" : "bg-gray-100"
+              selected === opt ? "bg-[#7752FE] text-white" : "bg-[#F6F5F5] text-[#190482]"
             }`}
             disabled={solved}
           >
@@ -62,7 +62,7 @@ function Puzzle({ title, question, options, correct, onSolve, hintsLeft, setHint
             whileHover={{ scale: 1.1 }}
             whileTap={{ scale: 0.9 }}
             onClick={checkSolution}
-            className="px-3 py-1 bg-green-500 text-white rounded disabled:bg-gray-400 mr-2"
+            className="px-3 py-1 bg-[#190482] text-white rounded disabled:bg-gray-400 mr-2"
             disabled={solved}
           >
             Submit
@@ -70,13 +70,17 @@ function Puzzle({ title, question, options, correct, onSolve, hintsLeft, setHint
 
           <button
             onClick={handleHint}
-            className="px-3 py-1 bg-yellow-400 text-black rounded"
+            className="px-3 py-1 bg-[#7752FE] text-white rounded"
           >
             Hint
           </button>
         </div>
 
-        {showHint && <p className="mt-2 text-sm text-gray-700 italic">The correct answer is somewhere among the options 😉</p>}
+        {showHint && (
+          <p className="mt-2 text-sm text-[#414BEA] italic">
+            The correct answer is somewhere among the options 😉
+          </p>
+        )}
       </motion.div>
     </AnimatePresence>
   );
@@ -92,7 +96,6 @@ function App() {
   const [lastReset, setLastReset] = useState(() => JSON.parse(localStorage.getItem("lastReset")) || new Date().toDateString());
   const [hintsLeft, setHintsLeft] = useState(3);
 
-  // Firebase Auth Listener
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
       setUser(currentUser);
@@ -129,7 +132,6 @@ function App() {
     }
   };
 
-  // Daily reset
   useEffect(() => {
     const today = new Date().toDateString();
     if (lastReset !== today) {
@@ -153,7 +155,6 @@ function App() {
     setStreak((prev) => prev + 1);
   };
 
-  // --- Daily Quizzes ---
   const puzzles = [
     {
       title: "Puzzle 1",
@@ -175,7 +176,6 @@ function App() {
     },
   ];
 
-  // --- Auth + Loading check ---
   if (loading) {
     return (
       <div className="flex justify-center items-center h-screen">
@@ -186,13 +186,13 @@ function App() {
 
   if (!user) {
     return (
-      <div className="flex justify-center items-center h-screen bg-gradient-to-br from-blue-100 to-blue-300">
+      <div className="flex justify-center items-center h-screen bg-gradient-to-br from-[#F6F5F5] to-[#7752FE]">
         <div className="bg-white p-10 rounded-xl shadow-xl text-center">
-          <h1 className="text-2xl font-bold mb-6">Welcome to Logic Looper!</h1>
-          <p className="mb-6 text-gray-700">Solve daily puzzles and boost your streak 🔥</p>
+          <h1 className="text-2xl font-bold mb-6 text-[#190482]">Welcome to Logic Looper!</h1>
+          <p className="mb-6 text-[#414BEA]">Solve daily puzzles and boost your streak 🔥</p>
           <button
             onClick={handleLogin}
-            className="flex items-center justify-center gap-3 px-6 py-3 bg-red-500 text-white text-lg font-semibold rounded shadow-lg hover:bg-red-600 transition"
+            className="flex items-center justify-center gap-3 px-6 py-3 bg-[#7752FE] text-white text-lg font-semibold rounded shadow-lg hover:bg-[#414BEA] transition"
           >
             <img src="/google-icon.png" alt="Google" className="w-6 h-6" />
             Sign in with Google
@@ -202,22 +202,21 @@ function App() {
     );
   }
 
-  // --- Puzzle Screen ---
   return (
     <div className="p-4 max-w-md mx-auto">
       <div className="flex justify-between items-center mb-4">
-        <span>Welcome, {user.displayName}</span>
+        <span className="text-[#190482]">Welcome, {user.displayName}</span>
         <button
           onClick={handleLogout}
-          className="px-3 py-1 bg-red-500 text-white rounded"
+          className="px-3 py-1 bg-[#7752FE] text-white rounded hover:bg-[#414BEA]"
         >
           Logout
         </button>
       </div>
 
-      <h1 className="text-3xl font-bold mb-2">Logic Looper</h1>
-      <h2 className="text-xl mb-2">🔥 Streak: {streak} | Total Points: {points}</h2>
-      <h3 className="text-md mb-4">Hints Remaining: {hintsLeft}</h3>
+      <h1 className="text-3xl font-bold mb-2 text-[#190482]">Logic Looper</h1>
+      <h2 className="text-xl mb-2 text-[#414BEA]">🔥 Streak: {streak} | Total Points: {points}</h2>
+      <h3 className="text-md mb-4 text-[#7752FE]">Hints Remaining: {hintsLeft}</h3>
 
       {puzzles.map((puzzle, idx) => (
         <Puzzle
@@ -230,15 +229,15 @@ function App() {
       ))}
 
       <div className="mt-4 border-t pt-2">
-        <h3 className="font-bold mb-2">Leaderboard</h3>
-        <ul>
+        <h3 className="font-bold mb-2 text-[#190482]">Leaderboard</h3>
+        <ul className="text-[#414BEA]">
           <li>Fizza - {points} pts</li>
           <li>Shubham - 200 pts</li>
           <li>Onkar - 100 pts</li>
         </ul>
       </div>
 
-      <p className="mt-4 text-sm text-gray-600">
+      <p className="mt-4 text-sm text-[#414BEA]">
         Install as PWA on mobile/desktop for offline use.
       </p>
     </div>
@@ -246,6 +245,7 @@ function App() {
 }
 
 export default App;
+
 
 
 

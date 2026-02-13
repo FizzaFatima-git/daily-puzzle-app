@@ -1,16 +1,23 @@
-# React + Vite
+# Logic Looper – Daily Puzzle Game 🎮
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+## Overview
+Logic Looper is a daily puzzle game designed for long‑term engagement. Players solve logic challenges, build streaks, and compete on leaderboards. The app is optimized for offline play and minimal server dependency.
 
-Currently, two official plugins are available:
+## Features
+- 365 unique puzzles (sequence, pattern, deduction, binary logic, number matrix)
+- Streak system + heatmap visualization
+- Limited daily hints
+- Leaderboards and achievements
+- Full PWA support (offline play, installable)
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## Tech Stack
+**Frontend:** React 18, Vite, Redux Toolkit, Tailwind CSS, Framer Motion, IndexedDB  
+**Backend:** Node.js, Express, PostgreSQL (Neon.tech), Prisma, NextAuth.js  
+**Deployment:** Vercel  
 
-## React Compiler
-
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
-
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+## Getting Started
+```bash
+git clone https://github.com/FizzaFatima-git/daily-puzzle-app.git
+cd daily-puzzle-app/frontend
+npm install
+npm run dev

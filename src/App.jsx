@@ -1,8 +1,12 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { signInWithPopup, signOut, onAuthStateChanged } from "firebase/auth";
 import { auth, provider } from "./firebase";
 import axios from "axios";
+import dayjs from "dayjs";
+
+import Heatmap from "./components/Heatmap";
+import { generateDailyPuzzles } from "./utils/puzzleGenerator";
 
 // --- Puzzle Component ---
 function Puzzle({ title, question, options, correct, onSolve, hintsLeft, setHintsLeft }) {
@@ -96,6 +100,7 @@ function App() {
   const [lastReset, setLastReset] = useState(() => JSON.parse(localStorage.getItem("lastReset")) || new Date().toDateString());
   const [hintsLeft, setHintsLeft] = useState(3);
 
+  // Auth
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
       setUser(currentUser);
@@ -132,6 +137,7 @@ function App() {
     }
   };
 
+  // Daily reset
   useEffect(() => {
     const today = new Date().toDateString();
     if (lastReset !== today) {
@@ -145,6 +151,7 @@ function App() {
     }
   }, [lastReset]);
 
+  // LocalStorage sync
   useEffect(() => {
     localStorage.setItem("points", JSON.stringify(points));
     localStorage.setItem("streak", JSON.stringify(streak));
@@ -155,26 +162,8 @@ function App() {
     setStreak((prev) => prev + 1);
   };
 
-  const puzzles = [
-    {
-      title: "Puzzle 1",
-      question: "Which planet is known as the Red Planet?",
-      options: ["Earth", "Mars", "Jupiter", "Venus"],
-      correct: "Mars",
-    },
-    {
-      title: "Puzzle 2",
-      question: "Unscramble this word: 'tca'",
-      options: ["cat", "act", "tac", "cta"],
-      correct: "cat",
-    },
-    {
-      title: "Puzzle 3",
-      question: "Sequence: 2, 4, 6, ?",
-      options: ["8", "10", "12", "14"],
-      correct: "8",
-    },
-  ];
+  // Generate puzzles dynamically
+  const puzzles = useMemo(() => generateDailyPuzzles(), []);
 
   if (loading) {
     return (
@@ -208,8 +197,7 @@ function App() {
         <span className="text-[#190482]">Welcome, {user.displayName}</span>
         <button
           onClick={handleLogout}
-          className="px-3 py-1 bg-[#7752FE] text-white rounded hover:bg-[#414BEA]"
-        >
+          className="px-3 py-1 bg-[#7752FE] text-white rounded hover:bg-[#414BEA]">
           Logout
         </button>
       </div>
@@ -217,6 +205,9 @@ function App() {
       <h1 className="text-3xl font-bold mb-2 text-[#190482]">Logic Looper</h1>
       <h2 className="text-xl mb-2 text-[#414BEA]">🔥 Streak: {streak} | Total Points: {points}</h2>
       <h3 className="text-md mb-4 text-[#7752FE]">Hints Remaining: {hintsLeft}</h3>
+
+      {/* Heatmap showing streak */}
+      <Heatmap streak={streak} />
 
       {puzzles.map((puzzle, idx) => (
         <Puzzle
@@ -231,9 +222,9 @@ function App() {
       <div className="mt-4 border-t pt-2">
         <h3 className="font-bold mb-2 text-[#190482]">Leaderboard</h3>
         <ul className="text-[#414BEA]">
-          <li>Fizza - {points} pts</li>
-          <li>Shubham - 200 pts</li>
-          <li>Onkar - 100 pts</li>
+          <li>Alice - {points} pts</li>
+          <li>Bob - 200 pts</li>
+          <li>Charlie - 100 pts</li>
         </ul>
       </div>
 
@@ -245,8 +236,3 @@ function App() {
 }
 
 export default App;
-
-
-
-
-

@@ -1,23 +1,43 @@
-# Logic Looper – Daily Puzzle Game 🎮
+Logic Looper – Daily Puzzle Game 🎮
+Overview
 
-## Overview
-Logic Looper is a daily puzzle game designed for long‑term engagement. Players solve logic challenges, build streaks, and compete on leaderboards. The app is optimized for offline play and minimal server dependency.
+Logic Looper is a daily puzzle game designed to engage users with logic, pattern, and trivia challenges. Players solve daily puzzles, track streaks, and compete on a leaderboard. The app is fully optimized for offline play and minimal server dependency.
 
-## Features
-- 365 unique puzzles (sequence, pattern, deduction, binary logic, number matrix)
-- Streak system + heatmap visualization
-- Limited daily hints
-- Leaderboards and achievements
-- Full PWA support (offline play, installable)
+Features
 
-## Tech Stack
-**Frontend:** React 18, Vite, Redux Toolkit, Tailwind CSS, Framer Motion, IndexedDB  
-**Backend:** Node.js, Express, PostgreSQL (Neon.tech), Prisma, NextAuth.js  
-**Deployment:** Vercel  
+Daily Puzzles: 5 types – Math, Pattern, GK, Logic, Unscramble
 
-## Getting Started
-```bash
+Streak System: Tracks consecutive days solved, visualized with a heatmap
+
+Limited Hints: 3 hints per day to help players solve puzzles
+
+Leaderboard: Highlights current user; scrollable for many users
+
+Offline Support: Full PWA functionality, installable on mobile/desktop
+
+Local Storage: Points, streaks, and puzzle progress stored locally via IndexedDB
+
+Tech Stack
+
+Frontend: React 18, Vite, Tailwind CSS, Framer Motion, IndexedDB
+
+Backend: Not included; all progress is local
+
+Deployment: Vercel (frontend only)
+
+Installation & Usage
+
+Clone the repository and install dependencies:
+
 git clone https://github.com/FizzaFatima-git/daily-puzzle-app.git
 cd daily-puzzle-app/frontend
 npm install
 npm run dev
+
+
+Open http://localhost:5175
+ in your browser
+
+Sign in with Google to start playing
+
+Solve daily puzzles and track your streak

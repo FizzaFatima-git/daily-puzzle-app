@@ -1,23 +1,34 @@
 {
-    "name": "Logic Looper",
-    "short_name": "LogicLooper",
-    "description": "Solve daily logic puzzles and boost your streak!",
-    "start_url": "/",
-    "display": "standalone",
-    "background_color": "#10B981",
-    "theme_color": "#10B981",
-    "orientation": "portrait",
-    "icons": [
-      {
-        "src": "/icon-192.png",
-        "sizes": "192x192",
-        "type": "image/png"
-      },
-      {
-        "src": "/icon-512.png",
-        "sizes": "512x512",
-        "type": "image/png"
-      }
-    ]
-  }
+  "name": "Logic Looper",
+  "short_name": "LogicLooper",
+  "description": "Solve daily logic puzzles and boost your streak!",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#F6F5F5",
+  "theme_color": "#7752FE",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    },
+    {
+      "src": "/favicon.ico",
+      "sizes": "64x64",
+      "type": "image/x-icon"
+    },
+    {
+      "src": "/apple-touch-icon.png",
+      "sizes": "180x180",
+      "type": "image/png"
+    }
+  ]
+}
+
   

@@ -5,8 +5,10 @@ const urlsToCache = [
   "/manifest.json",
   "/icon-192.png",
   "/icon-512.png",
-  "/index.css",
-  "/src/main.jsx"
+  "/favicon.ico",
+  "/apple-touch-icon.png",
+  "/correct.mp3",
+  "/google-icon.png"
 ];
 
 // Install SW and cache essential files
@@ -34,9 +36,6 @@ self.addEventListener("activate", (event) => {
 // Fetch from cache, fallback to network
 self.addEventListener("fetch", (event) => {
   event.respondWith(
-    caches.match(event.request).then((cachedRes) => {
-      return cachedRes || fetch(event.request);
-    })
+    caches.match(event.request).then((cachedRes) => cachedRes || fetch(event.request))
   );
 });
-

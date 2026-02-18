@@ -1,43 +1,101 @@
-Logic Looper – Daily Puzzle Game 🎮
-Overview
+🧠 Logic Looper – Daily Puzzle Game 🎮
+📌 Overview
 
-Logic Looper is a daily puzzle game designed to engage users with logic, pattern, and trivia challenges. Players solve daily puzzles, track streaks, and compete on a leaderboard. The app is fully optimized for offline play and minimal server dependency.
+Logic Looper is a Progressive Web App (PWA) that delivers engaging daily logic-based challenges.
+Players solve different types of puzzles each day, maintain streaks, earn points, and compete on a leaderboard.
 
-Features
+The app is fully installable and supports offline usage, ensuring smooth gameplay even without an internet connection.
 
-Daily Puzzles: 5 types – Math, Pattern, GK, Logic, Unscramble
+✨ Features
+🧩 Daily Puzzle System
 
-Streak System: Tracks consecutive days solved, visualized with a heatmap
+Includes 5 puzzle categories:
 
-Limited Hints: 3 hints per day to help players solve puzzles
+🔢 Math
 
-Leaderboard: Highlights current user; scrollable for many users
+🔍 Pattern
 
-Offline Support: Full PWA functionality, installable on mobile/desktop
+🌍 General Knowledge
 
-Local Storage: Points, streaks, and puzzle progress stored locally via IndexedDB
+🧠 Logic
 
-Tech Stack
+🔤 Unscramble
 
-Frontend: React 18, Vite, Tailwind CSS, Framer Motion, IndexedDB
+A new set of puzzles is available daily.
 
-Backend: Not included; all progress is local
+🔥 Streak Tracking
 
-Deployment: Vercel (frontend only)
+Tracks consecutive days of completed puzzles
 
-Installation & Usage
+Visual heatmap representation
 
-Clone the repository and install dependencies:
+Encourages daily engagement
 
+💡 Limited Hints
+
+3 hints available per day
+
+Helps users without making the game too easy
+
+🏆 Leaderboard
+
+Displays ranked users
+
+Highlights the current logged-in user
+
+Scrollable for large user lists
+
+📱 Progressive Web App (PWA)
+
+Installable on desktop and mobile
+
+Offline functionality via Service Worker
+
+Optimized for performance and reliability
+
+💾 Local Storage
+
+Points, streaks, and puzzle progress stored locally
+
+Uses IndexedDB for persistent data storage
+
+No backend dependency required
+
+🛠 Tech Stack
+Frontend
+
+React 18
+
+Vite
+
+Tailwind CSS
+
+Framer Motion
+
+IndexedDB
+
+Backend
+
+Not included (fully client-side application)
+
+Deployment
+
+Deployed on Vercel (Frontend Only)
+
+🚀 Installation & Usage
+1️⃣ Clone Repository
 git clone https://github.com/FizzaFatima-git/daily-puzzle-app.git
 cd daily-puzzle-app/frontend
+
+2️⃣ Install Dependencies
 npm install
+
+3️⃣ Run Development Server
 npm run dev
 
+4️⃣ Open in Browser
+http://localhost:5175
 
-Open http://localhost:5175
- in your browser
 
-Sign in with Google to start playing
-
-Solve daily puzzles and track your streak
+Sign in with Google to start playing.
+Solve daily puzzles and maintain your streak!
